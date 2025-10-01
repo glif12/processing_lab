@@ -1,0 +1,20 @@
+[
+{
+  "directory": "C:/Users/1/Desktop/SoftwareLab/build",
+  "command": "C:\\mingw64\\bin\\c++.exe -IC:/Users/1/Desktop/SoftwareLab/include -std=gnu++23 -o CMakeFiles\\generator.dir\\src\\main.cpp.obj -c C:\\Users\\1\\Desktop\\SoftwareLab\\src\\main.cpp",
+  "file": "C:/Users/1/Desktop/SoftwareLab/src/main.cpp",
+  "output": "C:/Users/1/Desktop/SoftwareLab/build/CMakeFiles/generator.dir/src/main.cpp.obj"
+},
+{
+  "directory": "C:/Users/1/Desktop/SoftwareLab/build",
+  "command": "C:\\mingw64\\bin\\c++.exe -IC:/Users/1/Desktop/SoftwareLab/include -std=gnu++23 -o CMakeFiles\\generator.dir\\src\\functions.cpp.obj -c C:\\Users\\1\\Desktop\\SoftwareLab\\src\\functions.cpp",
+  "file": "C:/Users/1/Desktop/SoftwareLab/src/functions.cpp",
+  "output": "C:/Users/1/Desktop/SoftwareLab/build/CMakeFiles/generator.dir/src/functions.cpp.obj"
+},
+{
+  "directory": "C:/Users/1/Desktop/SoftwareLab/build",
+  "command": "C:\\mingw64\\bin\\c++.exe -IC:/Users/1/Desktop/SoftwareLab/include -std=gnu++23 -o CMakeFiles\\generator.dir\\src\\parsing.cpp.obj -c C:\\Users\\1\\Desktop\\SoftwareLab\\src\\parsing.cpp",
+  "file": "C:/Users/1/Desktop/SoftwareLab/src/parsing.cpp",
+  "output": "C:/Users/1/Desktop/SoftwareLab/build/CMakeFiles/generator.dir/src/parsing.cpp.obj"
+}
+]

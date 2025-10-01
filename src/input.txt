@@ -1,0 +1,28 @@
+EMPLOYEE PROFILE
+================
+
+Dear {{ name }},
+
+We are pleased to provide your employment details:
+
+Position: {{ position }}
+Department: {{ department }}
+Office Location: {{ office }}
+Manager: {{ manager }}
+Current Project: {{ project }}
+
+Employment Details:
+- Start Date: {{ start_date }}
+- Email: {{ email }}
+- Direct Phone: {{ phone }}
+
+Company Information:
+{{ company }}
+{{ address }}
+Website: {{ website }}
+
+This information is confidential and intended for internal use only.
+
+Best regards,
+Human Resources Department
+{{ company }}

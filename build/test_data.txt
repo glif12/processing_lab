@@ -1,0 +1,10 @@
+# This is a comment
+key1=value1
+user_name=john_doe
+  spaced_key  =  spaced_value  
+number123=456value
+empty=
+=novalue
+invalid@char=test
+// Another comment
+last_key=last_value
