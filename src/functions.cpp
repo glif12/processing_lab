@@ -3,7 +3,7 @@
 #include <cstdio>
 
 // создание индекса для ключа 
-unsigned long djb2(const char* string) {
+unsigned long hashFunction(const char* string) { // based on djb2 
     unsigned long hash = 5381;
     int c;
 
@@ -19,7 +19,7 @@ unsigned long djb2(const char* string) {
 }
 
 int findIndex(HashMap* map, const char* key) { 
-    unsigned long index = djb2(key);
+    unsigned long index = hashFunction(key);
     unsigned long startIndex = index;
     int firstDeleted = -1;
 

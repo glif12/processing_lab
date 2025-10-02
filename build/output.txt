@@ -5,9 +5,9 @@ Dear John Smith,
 
 We are pleased to provide your employment details:
 
-Position: Senior Developer
-Department: IT
-Office Location: New York
+Position: SENIOR
+Department: IT_MANAGER
+Office Location: COPIED FROM TECH
 Manager: Sarah Johnson
 Current Project: AlphaProject
 
@@ -19,7 +19,7 @@ Employment Details:
 Company Information:
 TechSolutions Inc
 123 Business Ave
-Website: www.techsolutions.com
+Website: WWW.SAHAR.COM
 
 This information is confidential and intended for internal use only.
 

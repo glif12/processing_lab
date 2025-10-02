@@ -26,7 +26,7 @@ struct HashMap {
 };
 
 // для мапы 
-unsigned long djb2(const char* string);
+unsigned long hashFunction(const char* string);
 bool insertMap(HashMap* map,const char* key,const char* value);
 int findIndex(HashMap* map,const char* key);
 void mapInit(HashMap* map);
