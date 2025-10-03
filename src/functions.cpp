@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <cstdio>
 
-// создание индекса для ключа 
+// create index for Cell 
 unsigned long hashFunction(const char* string) { // based on djb2 
     unsigned long hash = 5381;
     int c;
@@ -18,6 +18,7 @@ unsigned long hashFunction(const char* string) { // based on djb2
     return hash;
 }
 
+// need for Cell insert
 int findIndex(HashMap* map, const char* key) { 
     unsigned long index = hashFunction(key);
     unsigned long startIndex = index;
