@@ -4,9 +4,8 @@ int parseKeyValueLine(const char* line, char* key, char* value, int maxLen) {
     // скип пробелов
     line = skipSpaces(line);
     
-    // скип комментариев и выход, если строка == комментарий
     if (line[0] == '#' || (line[0] == '/' && line[1] == '/')) {
-        return 5; // в строке нет знака '=', значит строка не валидна
+        return -1; // skip line
     }
     
     // ищем позицию знака '=' для разбиения строки на пару 
@@ -104,13 +103,13 @@ int loadDataFile(const char* filename, HashMap* map) {
         int result = parseKeyValueLine(processedLine, key, value, CSTRING_SIZE);
         if (result == 0) {
             if (!insertMap(map, key, value)) {
-                std::cerr << "Error on line " << lineNumber << ": failed to add pair to hash table" << std::endl;
+                std::cerr << "Error on line " << lineNumber << ": failed to add pair to hash table" << '\n';
                 fclose(file);
                 return 3; 
             }
             loadCount++;
-            std::cout << "Loaded: " << key << " = " << value << std::endl;
-        } else if (result == 5) {
+            std::cout << "Loaded: " << key << " = " << value << '\n';
+        } else if (result == -1) {
             continue;
         } else {
             std::cerr << "Error on line " << lineNumber << ": invalid data format" << 
@@ -119,14 +118,14 @@ int loadDataFile(const char* filename, HashMap* map) {
             return 3;
         }
     }
+    std::cout << '\n';
 
     fclose(file);
     return 0;
 }
 
 // обработка файла в потоке 
-bool processChar(StreamParser* parser, char c) {
-
+int processChar(StreamParser* parser, char c) {
     switch (parser->state) {
         case STATE_NORMAL:
             if (c == '{') {
@@ -150,15 +149,16 @@ bool processChar(StreamParser* parser, char c) {
             break;
             
         case STATE_OPEN_BRACE2:
-            if (c == ' ') {
-                // Пробел после {{ - игнорируем
-                break;
-            } else if (c == '}') {
-                // Случай {{}} - пустая метка
+            if (c == '}') {
+                // обработка пустой метки
                 parser->state = STATE_CLOSE_BRACE1;
+            } else if (c == '{') {
+                // три подряд {{{ - синтаксическая ошибка
+                std::cerr << "Error: triple '{{{' is not allowed. Error code: 4" << '\n';
+                return 4;
             } else {
                 parser->state = STATE_IN_TAG;
-                // Начинаем собирать имя переменной
+                // сбор информации о ключе
                 if (parser->varNamePos < CSTRING_SIZE - 1) {
                     parser->variableName[parser->varNamePos++] = c;
                     parser->variableName[parser->varNamePos] = '\0';
@@ -169,50 +169,53 @@ bool processChar(StreamParser* parser, char c) {
         case STATE_IN_TAG:
             if (c == '}') {
                 parser->state = STATE_CLOSE_BRACE1;
+            } else if (c == '{') {
+                // открывающая скобка внутри метки - синтаксическая ошибка
+                std::cerr << "Error: '{' inside variable tag is not allowed. Error code: 4" << '\n';
+                return 4;
             } else if (c == ' ') {
-                // Пробелы в конце имени - игнорируем
+                // игнор пробелов в конце
                 if (parser->varNamePos > 0 && parser->variableName[parser->varNamePos - 1] != ' ') {
-                    // Но только если это не первый пробел после имени
+                    // но только если это не первый пробел после имени
                 }
             } else {
-                // Добавляем символ к имени переменной
+                // превращение в cstring
                 if (parser->varNamePos < CSTRING_SIZE - 1) {
                     parser->variableName[parser->varNamePos++] = c;
                     parser->variableName[parser->varNamePos] = '\0';
                 } else {
-                    // Слишком длинное имя переменной
-                    std::cerr << "Error: variable name too long" << std::endl;
-                    return false;
+                    // слишком длинное имя переменной
+                    std::cerr << "Error: variable name too long. Error code: 5" << '\n';
+                    return 5;
                 }
             }
             break;
             
         case STATE_CLOSE_BRACE1:
             if (c == '}') {
-                // Завершили метку {{ variable }}
+                // завершение метки
                 parser->state = STATE_NORMAL;
                 
-                // Обрезаем пробелы в имени переменной
                 trimRight(parser->variableName);
                 const char* cleanedName = skipSpaces(parser->variableName);
                 
-                // Проверяем, что имя переменной не пустое
+                // проверка, что переменная не пустая
                 if (strLen(cleanedName) == 0) {
-                    std::cerr << "Error: empty variable name in template" << std::endl;
-                    return false;
+                    std::cerr << "Error: empty variable name in template. Error code: 5" << '\n';
+                    return 5;
                 }
                 
-                // Ищем значение в hashMap
+                // ищем значение в HashMap
                 char value[CSTRING_SIZE];
                 if (hashmapFind(parser->dataMap, cleanedName, value)) {
                     fputs(value, parser->outputFile);
                 } else {
-                    std::cerr << "Error: variable '" << cleanedName << "' not found" << std::endl;
-                    return false;
+                    std::cerr << "Error: variable '" << cleanedName << "' not found. Error code: 1" << '\n';
+                    return 1;
                 }
             } else {
                 // Это была одиночная }, а не конец метки
-                // Возвращаемся в состояние IN_TAG и добавляем } к имени
+                // возвращаемся в состояние IN_TAG и добавляем } к имени
                 parser->state = STATE_IN_TAG;
                 if (parser->varNamePos < CSTRING_SIZE - 1) {
                     parser->variableName[parser->varNamePos++] = '}';
@@ -222,14 +225,14 @@ bool processChar(StreamParser* parser, char c) {
                     parser->variableName[parser->varNamePos++] = c;
                     parser->variableName[parser->varNamePos] = '\0';
                 } else {
-                    std::cerr << "Error: variable name too long" << std::endl;
-                    return false;
+                    std::cerr << "Error: variable name too long. Error code: 5" << '\n';
+                    return 5;
                 }
             }
             break;
     }
     
-    return true;
+    return 0;
 }
 
 // обработка/запись файлов в потоке 
@@ -249,7 +252,7 @@ bool processTemplateStream(const char* templatePath, HashMap* dataMap, const cha
             return false;
         }
     } else {
-        outputFile = stdout; // Вывод в консоль
+        outputFile = stdout; // вывод в консоль
     }
     
     StreamParser parser;
@@ -257,10 +260,12 @@ bool processTemplateStream(const char* templatePath, HashMap* dataMap, const cha
     
     char buffer[1024];
     bool success = true;
+    int result = 0;
     
     while (fgets(buffer, sizeof(buffer), templateFile)) {
         for (int i = 0; buffer[i] != '\0'; i++) {
-            if (!processChar(&parser, buffer[i])) {
+            result = processChar(&parser, buffer[i]);
+            if (result != 0) {
                 success = false;
                 break;
             }
@@ -268,9 +273,9 @@ bool processTemplateStream(const char* templatePath, HashMap* dataMap, const cha
         if (!success) break;
     }
     
-    // проверка, что я в середине метки
+    // проверка на незакрытую метку в конце файла
     if (success && parser.state != STATE_NORMAL) {
-        std::cerr << "Error: unclosed tag at the end of file" << std::endl;
+        std::cerr << "Error: unclosed tag at the end of file. Error code: 4" << std::endl;
         success = false;
     }
     

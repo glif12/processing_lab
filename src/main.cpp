@@ -3,41 +3,40 @@
 #include <iostream>
 
 int main(int argc, char* argv[]) {
-
     // init all 
     HashMap dataMap;
     mapInit(&dataMap);
 
     Arguments args;
-    parseArguments(argc,argv,args);
+    int parseResult = parseArguments(argc, argv, args);
+    
+    if (parseResult != 0) {
+        return parseResult; // возврат кода ошибки из парсера
+    }
 
-    // load data file and wirte outpuut file 
-    if (loadDataFile(args.dataFile, &dataMap) == 0) 
-    {
-        switch (args.isOutput) {
+    // load data file
+    int loadResult = loadDataFile(args.dataFile, &dataMap);
+    if (loadResult != 0) {
+        std::cerr << "Error: Failed to load data file. Error code: " << loadResult << '\n';
+        return loadResult;
+    }
 
-            case 1:
-                if (processTemplateStream(args.templateFile, &dataMap, args.outputFile)) 
-                {
-                    std::cout << "Success: Template processed. Check " << args.outputFile << '\n';
-                    return 0;
-                }
+    bool success = false;
+    if (args.isOutput) {
+        success = processTemplateStream(args.templateFile, &dataMap, args.outputFile);
+    } else {
+        success = processTemplateStream(args.templateFile, &dataMap, nullptr);
+    }
 
-            default: 
-                if (processTemplateStream(args.templateFile, &dataMap,"output.txt")) 
-                {
-                    std::cout << "Success: Template processed. Check output.txt" << '\n';
-                    return 0;
-                }
-                break;
+    if (success) {
+        if (args.isOutput) {
+            std::cout << "Success: Template processed. Check " << args.outputFile << '\n';
+        } else {
+            std::cout << "Success: Template processed to console" << '\n';
         }
+        return 0;
+    } else {
+        std::cerr << "Error: Template processing failed. Error code: 3" << '\n';
+        return 3;
     }
-    
-    else 
-    {
-    std::cerr << "Error: Processing failed Erroe code: 3" << '\n';
-    return 3;
-    }
-    
-    return 0;
 }

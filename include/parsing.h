@@ -30,7 +30,7 @@ struct StreamParser {
 void initStreamParser(StreamParser* parser, HashMap* dataMap, FILE* outputFile);
 int loadDataFile(const char* filename, HashMap* map);
 int parseKeyValueLine(const char* line, char* key, char* value, int maxLen);
-bool processChar(StreamParser* parser, char c);
+int processChar(StreamParser* parser, char c);
 bool processTemplateStream(const char* templatePath, HashMap* dataMap, const char* outputPath);
 int parseArguments(int argc, char* argv[], Arguments& args);
 
